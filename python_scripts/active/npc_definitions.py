@@ -12,6 +12,8 @@ class NPC():
         self.down1 = 0
         self.NPC_id = ""
         self.NPC_id_num = 0
+        self.text = ""
+        self.ai = 0
         
     def set_NPC_details(self, id_string, id_num):
         self.NPC_id = id_string
@@ -32,8 +34,42 @@ class NPC():
     def set_down(self, down1, down2):
         self.down1 = down1
         self.down2 = down2
+        
+    def set_text(self, text_in):
+        self.text = text_in
+        
+    def set_ai(self, ai_in):
+        # 0, 1, 2, 3, 4, 5
+        self.ai = ai_in
+        
+    def createCopy(self):
+        new_npc = NPC()
+        new_npc.set_NPC_details(self.NPC_id, self.NPC_id_num)
+        new_npc.set_left(self.left1, self.left2)
+        new_npc.set_right(self.right1, self.right2)
+        new_npc.set_up(self.up1, self.up2)
+        new_npc.set_down(self.down1, self.down2)
+        return(new_npc)
 
 npc_list = pd.Series()
+npc = NPC()
+npc.set_NPC_details("empty", 0)
+npc.set_left(7, 7)
+npc.set_right(7, 7)
+npc.set_up(7, 7)
+npc.set_down(7, 7)
+this_npc = pd.Series(npc, index=[npc.NPC_id])
+npc_list = npc_list.append(this_npc)
+
+npc = NPC()
+npc.set_NPC_details("player", 1)
+npc.set_left(20, 21)
+npc.set_right(20, 21)
+npc.set_up(16, 17)
+npc.set_down(18, 19)
+this_npc = pd.Series(npc, index=[npc.NPC_id])
+npc_list = npc_list.append(this_npc)
+
 npc = NPC()
 npc.set_NPC_details("skeleman", 2)
 npc.set_left(30, 31)
@@ -124,4 +160,21 @@ npc.set_down(132, 133)
 this_npc = pd.Series(npc, index=[npc.NPC_id])
 npc_list = npc_list.append(this_npc)
 
+npc = NPC()
+npc.set_NPC_details("bandit", 12)
+npc.set_left(155, 156)
+npc.set_right(155, 156)
+npc.set_up(153, 154)
+npc.set_down(151, 152)
+this_npc = pd.Series(npc, index=[npc.NPC_id])
+npc_list = npc_list.append(this_npc)
+
+npc = NPC()
+npc.set_NPC_details("domo", 13)
+npc.set_left(173, 174)
+npc.set_right(173, 174)
+npc.set_up(130, 131)
+npc.set_down(128, 129)
+this_npc = pd.Series(npc, index=[npc.NPC_id])
+npc_list = npc_list.append(this_npc)
 
