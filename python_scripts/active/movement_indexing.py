@@ -22,35 +22,54 @@ this_map = dicta_cpp["map_array"]
 sprite_x = 16
 sprite_y = 16
 sprite_n = sprite_x * sprite_y
-post_pos_x = 2
-post_pos_y = 1
+pre_pos_x = 0
+pre_sprite_pos_x = 6
+post_pos_x = 0
+post_pos_y = 0
+post_sprite_pos_y = 6
 buffer_size = sprite_n * 2 
 n_x = sprite_x
-n_sprites = 175
+n_sprites = 183
+alpha_pixel = 28
 
-mm = np.zeros(buffer_size, dtype='uint32')
-map_index = np.zeros(buffer_size, dtype='uint32')
-total_map = np.zeros(buffer_size, dtype='uint8')
+retain_buffer = np.zeros(buffer_size, dtype='uint8');
+effect_buffer = np.zeros(buffer_size, dtype='uint8');
 for i_16 in range(0, buffer_size):
-#    mm[i_16]= (((i_16//sprite_x)%2)+post_pos_x) + (post_pos_y*dicta_h["map_x"][0])
-#    map_index[i_16] = this_map[(((i_16//sprite_x)%2)+post_pos_x) + (post_pos_y*dicta_h["map_x"][0])];
-#    sprite_pixel = ((i_16%sprite_x)+(sprite_x*map_index[i_16]))+(((i_16%(n_x*sprite_x))//n_x)*(sprite_x*n_sprites));
-#    total_map[i_16] = sprite_sheet[sprite_pixel]
-#map_index = map[(((i_16/sprite_x)%vis_grid_x)+pos_x)+(((i_16/(n_x*sprite_x))+pos_y)*world_x)];
-    mm[i_16] = (post_pos_x) + (((i_16//sprite_n)+post_pos_y)*dicta_h["map_x"][0])
-    map_index[i_16] = this_map[mm[i_16]];
-    sprite_pixel = ((i_16%sprite_x)+(sprite_x*map_index[i_16]))+(((i_16%(n_x*sprite_x))//n_x)*(sprite_x*n_sprites));
-    total_map[i_16] = sprite_sheet[sprite_pixel]
+    map_index = this_map[(((i_16//sprite_x)%2)+pre_pos_x+pre_sprite_pos_x) + ((post_pos_y+post_sprite_pos_y)*dicta_h["map_x"][0])];
+    sprite_pixel = ((i_16%sprite_x)+(sprite_x*map_index))+(((i_16%((sprite_x*2)*sprite_x))//(sprite_x*2))*(sprite_x*n_sprites));
+    #sprite_pixel = sprite_indexing(i_16, 0, map_index, sprite_x*2, buffer_size);
+    retain_buffer[i_16] = sprite_sheet[sprite_pixel];
     
-total_map_2 = np.reshape(total_map, (sprite_y*2, sprite_x))
-total_map_2 = np.uint8(total_map_2)
+i_8 = 3
+mm = np.zeros(buffer_size, dtype='uint32')
+for i_16 in range(0, buffer_size):
+#    effect_buffer[i_16] = retain_buffer[i_16];
+    if ((i_16 >= ((i_8*4)*sprite_x)) & (i_16 < (((i_8*4)*sprite_x)+sprite_n))):
+        map_index = 18;
+        sprite_pixel = 1;
+        mm[i_16] = sprite_pixel
+        sprite_pixel = (((i_16-((i_8*4)*sprite_x))%sprite_x)+(sprite_x*map_index))+((((i_16-((i_8*4)*sprite_x))%(n_x*sprite_x))//n_x)*(sprite_x*n_sprites));
+        #sprite_pixel = sprite_indexing(i_16-(i_8*4), 0, map_index, sprite_x*2, buffer_size);
+        if (sprite_sheet[sprite_pixel] == alpha_pixel):
+            effect_buffer[i_16] = retain_buffer[i_16];
+        else:
+            effect_buffer[i_16] = sprite_sheet[sprite_pixel];
+    else:
+        effect_buffer[i_16] = retain_buffer[i_16];
 
-disp_map = np.zeros((np.size(total_map_2, 0), np.size(total_map_2, 1), 3), dtype='uint8')
-disp_map[:, :, 0] = ((np.right_shift(total_map_2, 5) & 7) / 7) * 255
-disp_map[:, :, 1] = ((np.right_shift(total_map_2, 2) & 7) / 7) * 255
-disp_map[:, :, 2] = ((total_map_2 & 3) / 3) * 255
+    
+effect_buffer_2 = np.reshape(effect_buffer, (sprite_y*2, sprite_x))
+mm_2 = np.reshape(mm, (sprite_y*2, sprite_x))
+
+disp_map = np.zeros((np.size(effect_buffer_2, 0), np.size(effect_buffer_2, 1), 3), dtype='uint8')
+disp_map[:, :, 0] = ((np.right_shift(effect_buffer_2, 5) & 7) / 7) * 255
+disp_map[:, :, 1] = ((np.right_shift(effect_buffer_2, 2) & 7) / 7) * 255
+disp_map[:, :, 2] = ((effect_buffer_2 & 3) / 3) * 255
 
 fig, ax = plt.subplots()
 cax = ax.imshow(disp_map)
+
+fig2, ax2 = plt.subplots()
+cax2 = ax2.imshow(mm_2)
 
 plt.show()
